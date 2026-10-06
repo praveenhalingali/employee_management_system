@@ -1,0 +1,36 @@
+pipeline {
+
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'YOUR_GITHUB_REPO_URL'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+
+        stage('Stop Old Application') {
+            steps {
+                sh '''
+                    pkill -f "your-application.jar" || true
+                '''
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                    nohup java -jar target/your-application.jar > app.log 2>&1 &
+                '''
+            }
+        }
+    }
+}
